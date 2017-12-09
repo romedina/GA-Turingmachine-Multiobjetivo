@@ -23,7 +23,7 @@ class Kolmogorov {
   static int maxNN=5000000,	minNN=1;	// Numero de transiciones
   static int maxL=50000, minL=1;		// Longitud de la cinta
   static double	maxPc=1f, minPc=.01f;	// Probabilidad de cruza
-  static double	maxPm=1f, minPm=.001f;	// Probabilidad de mutación
+  static double	maxPm=1f, minPm=.001f;	// Probabilidad de mutacion
   static int maxG=10000, minG=1;		// Numero de generaciones
   static double	maxW=1,	minW=0;			// Valores de W
 //
@@ -59,7 +59,7 @@ class Kolmogorov {
 		Fps.println("0.900\t\t4) Pc");
 		Fps.println("0.010\t\t5) Pm");
 		Fps.println("1000\t\t6) Generaciones");
-		Fps.println("0.5\t\t7) Ponderación");
+		Fps.println("0.5\t\t7) Ponderacion");
 	  }//endCatch
   }//endCreaParams
 
@@ -73,13 +73,13 @@ class Kolmogorov {
 	  Pc=Double.valueOf(LHT(Fbr)).floatValue();	// 4) Pc
 	  Pm=Double.valueOf(LHT(Fbr)).floatValue();	// 5) Pm
 	  G =Integer.parseInt(LHT(Fbr));			// 6) Generaciones
-	  W=Double.valueOf(LHT(Fbr)).floatValue();	// 7) Ponderación
+	  W=Double.valueOf(LHT(Fbr)).floatValue();	// 7) Ponderacion
   }//endGetParams
 
  public static	void UpdateParams()	throws Exception {
 	PrintStream Fps=new PrintStream(new FileOutputStream(new File("AGParams.txt")));
 	Fps.println(N+"\t\t1) Individuos");
-	Fps.println(NN+"\t\t2) Número de transiciones");
+	Fps.println(NN+"\t\t2) Numero de transiciones");
 	Fps.println(L+"\t\t3) Longitud de la Cinta");
 	Fps.printf("%8.6f\t\t4)Pc",Pc);
 		Fps.println();
@@ -241,7 +241,7 @@ class Kolmogorov {
 */
 		int PP=L/2; 					// UBICA LA CABEZA A LA MITAD DE LA CINTA
 /*
- *		La cinta inicial está Llena de 0s
+ *		La cinta inicial esta Llena de 0s
  */
 		Tape="0";for (int j=1;j<L;j++) Tape=Tape+"0";
 		NewTape=UTM_AG.NewTape(genoma[i],Tape,NN,PP);
@@ -312,7 +312,7 @@ class Kolmogorov {
 
 	public static void ShowTM(String STM) throws Exception {
 		/* 
-		 *	LEE TODOS LOS BYTES DE LA MÁQUINA DE TURING
+		 *	LEE TODOS LOS BYTES DE LA MAQUINA DE TURING
 		 *
 		 */
 		int MTLen=STM.length();
@@ -371,7 +371,7 @@ class Kolmogorov {
  */
 		System.out.printf("\n\nAjuste maximo: %15.7f\n",fitness[0]);
 /*
- *		LA MEJOR MÁQUINA
+ *		LA MEJOR MAQUINA
  */
 		PrintStream TgtTMps=new PrintStream(new FileOutputStream(new File("TargetTM.txt")));
 		TgtTMps.println(genoma[0]);
