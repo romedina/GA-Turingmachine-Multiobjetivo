@@ -365,32 +365,18 @@ class Kolmogorov {
 			// dividimos el valor obtenido de objA entre el maximo que podriamos obtener
 			objAStan = objA / (TgtLen+WF*((TgtLen/2) + WF * ((TgtLen/3) + WF * (TgtLen/4))) );
 			//System.out.println("objAStan: " + objAStan);
-
-			/*
-			// escogemos el peor valor y lo guardamos en WorstofA
-			if(objAStan < worstofA){
-				worstofA = objAStan;
-			}
-			System.out.println("worstofA: " + worstofA);
-			*/
 			
 
 			// OBJETIVO B
 			try{
 				objB= UTM_AG.Complejidad(genoma[i],Tape,NN,(int)TgtLen/2);	
 			}catch (Exception e){};
-			
 			objBStan = 16/ (double)objB;
 
-			/*
-			if(objBStan < worstofB){
-				worstofB = objBStan;
-			}
-			System.out.println("worstofB: " + worstofB);
-			*/
-
-			double worst = Math.min(objA,objB);
-			
+			double worst = Math.min(objAStan,objBStan);
+			System.out.println("worst A: " + objAStan);
+			System.out.println("worst B: " + objBStan);
+			System.out.println("worst: " + worst);
 
 
 			//fitness[i] = Math.max(worstofA,worstofB);
