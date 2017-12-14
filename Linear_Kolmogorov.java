@@ -4,11 +4,25 @@
  */
 import java.io.*;
 import java.util.Random;
+import java.lang.Math.*;
+import java.lang.*;
 
 class Kolmogorov {
 
   static int LG=1024;					// Longitud del genoma
+  /*
+		NN -> Numero de Transiciones
+		N -> Numero de Individuos
+		N_2 -> Mitad de Individuos
+		L -> Longitud de la cinta
+		L_2 -> Mitad de la cinta
+		G -> Generaciones
+		B2M -> Bits to Mutate
+		Nx2 -> Doble de Individuos
+		iTmp -> input desde terminal [ ver Modify() ]
+  */
   static int P,N,NN,N_2,L,L_2,FN=1,G,B2M,Nx2,iTmp;
+
   static String	Resp,TT;
   static double	Pc,	Pm;
   static double	fTmp,W;					// WW --> Ponderacion para Solos,Pares,Triadas,Cuartetas
@@ -26,11 +40,16 @@ class Kolmogorov {
   static double	maxPm=1f, minPm=.001f;	// Probabilidad de mutacion
   static int maxG=10000, minG=1;		// Numero de generaciones
   static double	maxW=1,	minW=0;			// Valores de W
+
+  //static double worstofA = 1, worstofB = 1, worstofC = 1; //los peores para el multiobjetivo
 //
   public static	String genoma [];
   public static	double fitness[];
   public static	BufferedReader Fbr,Kbr,Tbr;
   
+
+
+
 /*
  *	LEE UNA CADENA HASTA EL PRIMER <TAB>
  *		A la entrada:	Buffered Reader
@@ -46,6 +65,22 @@ class Kolmogorov {
    	System.out.println("No se encontro el tabulador");
    	return "";
    }//endLHT
+
+
+
+
+   /*
+		=========================
+
+						FUNCIONES PARAMETRIZACION [ AGE ]
+
+		=========================
+  */
+
+   /*	
+   		CreaParams() -----------------------
+		Crea los parametros iniciales que salen en el programa
+   */
 
    public static void CreaParams() throws Exception {
 	  try {
@@ -63,6 +98,11 @@ class Kolmogorov {
 	  }//endCatch
   }//endCreaParams
 
+  /*
+		GetParams()
+		Obtiene los valores de la parametrizacion del archivo AGParams.txt usando LTH.
+  */
+
   public static	void GetParams() throws	Exception {
 	  Fbr=new BufferedReader(new InputStreamReader(new FileInputStream(new File("AGParams.txt"))));
 	  N =Integer.parseInt(LHT(Fbr));			// 1) Individuos
@@ -70,11 +110,16 @@ class Kolmogorov {
 	  L =Integer.parseInt(LHT(Fbr));			// 3) Long. de la cinta
 	  Tbr=new BufferedReader(new InputStreamReader(new FileInputStream(new File("Tape.txt"))));
 	  TT=Tbr.readLine();						// Lee cinta destino (Target)
-	  Pc=Double.valueOf(LHT(Fbr)).floatValue();	// 4) Pc
-	  Pm=Double.valueOf(LHT(Fbr)).floatValue();	// 5) Pm
+	  Pc=Double.valueOf(LHT(Fbr)).floatValue();	// 4) Probabilidad cruce
+	  Pm=Double.valueOf(LHT(Fbr)).floatValue();	// 5) Probabilidad mutacion
 	  G =Integer.parseInt(LHT(Fbr));			// 6) Generaciones
 	  W=Double.valueOf(LHT(Fbr)).floatValue();	// 7) Ponderacion
   }//endGetParams
+
+  /*
+		UpdateParams()
+		Actualiza los valores de la parametrizacion
+  */
 
  public static	void UpdateParams()	throws Exception {
 	PrintStream Fps=new PrintStream(new FileOutputStream(new File("AGParams.txt")));
@@ -89,6 +134,11 @@ class Kolmogorov {
 	Fps.printf("%8.6f\t\t7) W",W);
 		Fps.println();
   }//endUpdateParams
+
+  /*
+		DispParams()
+		Imprime los valores que se asignaron en GetParams().
+  */
   
   public static	void DispParams() throws Exception {
 	System.out.println();
@@ -101,14 +151,25 @@ class Kolmogorov {
 	System.out.printf ("7) Factor de Ponderacion:   %8.6f\n",W);
   }//endDispParams
 
+  /*
+		CalcParamas()
+		Se calculan algunos valores globales a partir de la parametrizacion.
+  */
+
   public static	void CalcParams() {
 	N_2=N/2;
 	Nx2=N*2;
 	genoma = new String [Nx2];
 	fitness= new double [Nx2];
-	L_2=LG/2;
+	L_2=LG/2; 
 	B2M=(int)((double)N*(double)LG*Pm);		//Bits to Mutate
   }//endCalcParams
+
+  /*
+		Modify()
+		Sirve para modificar los valores de la parametrizacion desde la terminal.
+		Agarra el input de terminal y lo asigna en el elemento seleccionado.
+  */
 
   public static	void Modify() throws Exception {
 	Kbr	= new BufferedReader(new InputStreamReader(System.in));
@@ -149,9 +210,28 @@ class Kolmogorov {
 	}//endWhile
   }//endModify
 
+  /*
+		==================== FIN FUNCIONES PARAMETRIZACION
+  */
+
+  /*
+		=========================
+
+					FUNCIONES ALGORITMO GENETICO ECLECTICO [ AGE ]
+
+		=========================
+  */
+
+
+
+  /*
+		PoblacionInicial()
+		Crea la primer poblacion con tamano N de individuos.
+  */
+
   public static	void PoblacionInicial(double fitness[],	String genoma[]) throws	Exception{
 	/*
-	 *Genera Nx2 individuos aleatoriamente
+	 *Genera N individuos aleatoriamente
 	 */
   	for (int i=0;i<N;i++){
   		genoma[i]="";
@@ -165,12 +245,25 @@ class Kolmogorov {
   	}//endFor
   }//endPoblacionInicial
 
+  /*
+		Duplica()
+		al arreglo genoma y fitness los duplica con el mismo contenido que tenian antes
+		ejemplo:
+		genoma [0,1,1,0]  -->
+		genoma [0,1,1,0 , 0,1,1,0]
+  */
+
   public static	void Duplica(double	fitness[],String genoma[]){
 	for (int i=0;i<N;i++){
 		genoma [N+i]=genoma [i];
 		fitness[N+i]=fitness[i];
 	}//endFor
   }//endCopia
+
+  /*
+		Cruza()
+		fuciona entre el primero del arreglo con el ultimo del arreglo
+  */
   
   public static	void Cruza(String genoma[]){
   	int N_i,P;
@@ -189,6 +282,12 @@ class Kolmogorov {
 		genoma[N_i]=LN.concat(MI).concat(RN);
 	}//endFor
   }//endCruza
+
+  /*
+		Muta()
+		algun bit de forma aleatoria es mutado.
+
+  */
 
   public static	void Muta(String genoma[]) throws Exception {
 	int nInd, nBit;
@@ -220,36 +319,20 @@ class Kolmogorov {
   public static	void Evalua(double fitness[],String	genoma[]){
 	String Tape,NewTape;
 	for (int i=0;i<N;i++){
-/*
- *	NewTape=UTM_AG(TT,Tape,N,P)
- *				/\	 |	| |
-		Description of Turing's Machine in ASCII binary
-					 |  | |
-			Input tape in ASCII binary
-					    | |
-				Maximum number of transitions
-					      |
-					Position of the Head at offset
-					   	  
-		Maximum 64 states (000000 - 111111)
-			State 111111 is HALT
-
-	ON OUTPUT:
-		1) The processed tape if HALT
-		2) Idem if N is exceeded
-		3) Nul tape if over/under flow occurs
-*/
-		int PP=L/2; 					// UBICA LA CABEZA A LA MITAD DE LA CINTA
-/*
- *		La cinta inicial esta Llena de 0s
- */
-		Tape="0";for (int j=1;j<L;j++) Tape=Tape+"0";
-		NewTape=UTM_AG.NewTape(genoma[i],Tape,NN,PP);
-		double Solos=0,Pares=0,Triadas=0,Cuartetas=0;
+		int PP=L/2; // UBICA LA CABEZA A LA MITAD DE LA CINTA
+		Tape="0";for (int j=1;j<L;j++) Tape=Tape+"0"; //Cinta llena de ceros
+		NewTape=UTM_AG.NewTape(genoma[i],Tape,NN,PP); // Cinta de la Maquina de Turing
+		double Solos=0,Pares=0,Triadas=0,Cuartetas=0; 
 		boolean FF2=true, FF3=true, FF4=true;
-		double WF=1+W;
+		double WF=1+W; // 1 + Factor de ponderacion
 		int TgtLen=TT.length();
+		double objA = 0, objB = 0,objC = 0;
+		double objAStan = 0, objBStan = 0, objCStan = 0;
+		
+		
 		if (NewTape.length()!=0){
+
+			// Objetivo A
 			int k=PP-1;
 			for (int j=0;j<TgtLen;j++){
 				k++;
@@ -270,7 +353,49 @@ class Kolmogorov {
 					catch (Exception e) {FF4=false;}
 				}//endIf
 			}//endFor
-			fitness[i]=Solos+WF*(Pares+WF*(Triadas+WF*Cuartetas));
+
+			//fitness[i]=Solos+WF*(Pares+WF*(Triadas+WF*Cuartetas));
+
+
+			// OBJETIVO A
+
+			// asignamos el fitnes como el valor del objetivo A
+			objA = Solos+WF*(Pares+WF*(Triadas+WF*Cuartetas));
+			// estandarizamos el valor para tener un numero entre 0 - 1
+			// dividimos el valor obtenido de objA entre el maximo que podriamos obtener
+			objAStan = objA / (TgtLen+WF*((TgtLen/2) + WF * ((TgtLen/3) + WF * (TgtLen/4))) );
+			//System.out.println("objAStan: " + objAStan);
+
+			/*
+			// escogemos el peor valor y lo guardamos en WorstofA
+			if(objAStan < worstofA){
+				worstofA = objAStan;
+			}
+			System.out.println("worstofA: " + worstofA);
+			*/
+			
+
+			// OBJETIVO B
+			try{
+				objB= UTM_AG.Complejidad(genoma[i],Tape,NN,(int)TgtLen/2);	
+			}catch (Exception e){};
+			
+			objBStan = 16/ (double)objB;
+
+			/*
+			if(objBStan < worstofB){
+				worstofB = objBStan;
+			}
+			System.out.println("worstofB: " + worstofB);
+			*/
+
+			double worst = Math.min(objA,objB);
+			
+
+
+			//fitness[i] = Math.max(worstofA,worstofB);
+			fitness[i] = worst;
+
 			if (fitness[i]>BestFitness){
 				BestFitness=fitness[i];
 				BestTapeMatch=NewTape.substring(PP,PP+TgtLen);
@@ -417,7 +542,7 @@ class Kolmogorov {
 	 }//endWhile
 	 RandN = new Random(root);
 	 float RN = RandN.nextFloat();
-	 LeeDatos.Cinta();						// Rutina externa
+	 LeeDatos.Cinta();						//Rutina externa
 	 CreaParams();							//Crea archivo si no existe
 	 GetParams();							//Lee parametros de archivo
 	 Modify();								//Modifica valores
@@ -425,7 +550,7 @@ class Kolmogorov {
 	 UpdateParams();						//Graba en archivo
 /*
  *		EMPIEZA EL ALGORITMO GENETICO
- */
+*/
  	 PoblacionInicial(fitness, genoma);			//Genera la poblacion inicial
 	 System.out.printf("GEN %8.0f\n",0f);
 	 Evalua(fitness,genoma);
